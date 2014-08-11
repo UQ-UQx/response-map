@@ -6,7 +6,7 @@ The response map is an LTI tool that allows students to respond to a question or
 You will need have an Apache HTTP server which is configured to serve PHP files and have a MySQL database configured to store student details and responses.
 
 ## Installation
-First, you must edit config.example.php to contain the appropriate MySQL credentials and save the file as config.php.
+First, you must edit config.example.php to contain the appropriate MySQL credentials and Google Maps API key and save the file as config.php.
 
 Then, you must specify and LTI key and secret in lti.php.
 

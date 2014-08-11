@@ -11,8 +11,6 @@
 
 	require_once('lti.php');
 
-	$google_key = 'AIzaSyCLwZ7CFtSTjbZn3Xnw_8_038o1tisTxss';
-
 	/* Check if a valid lti request received */
 	$lti = new Lti();
 	$lti->require_valid(); // Returns error message if not a valid LTI request
@@ -98,7 +96,6 @@
 				$student_responses[0]->thumbnail_url = $_POST['user_thumbnail_url'];
 			}
 			else {
-				// Manually put student's own response into the array to be passed to Google maps
 				$student_responses[0]->response = $self_row[0];
 				$student_responses[0]->image_url = $self_row[1];
 				$student_responses[0]->thumbnail_url = $self_row[2];
@@ -111,6 +108,7 @@
 			$student_responses[0]->lat = $user_row[2];
 			$student_responses[0]->lng = $user_row[3];
 
+			// Other student responses are appended later to ensure that the student's own response in first in the array
 			$select_response_query = mysqli_query($conn, 'SELECT response_body, fullname, location, lat, lng, image_url, thumbnail_url FROM response, user WHERE resource_id = "' . $question_id . '" AND response.user_id = user.user_id AND user.user_id != "' . $_SESSION[$_POST['lis_result_sourcedid']]['user_id'] . '"');
 
 			// Loop through all other student responses obtained from database and push it into array
