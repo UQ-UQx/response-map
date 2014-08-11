@@ -1,0 +1,63 @@
+@charset "UTF-8";
+
+.filelimit {
+	height: 32px;
+	line-height: 32px;
+	vertical-align: center;
+}
+
+#errors {
+	color:red;
+}
+
+span.filelimit {
+	float:right;
+	text-align:right;
+}
+
+.btn-success,.progress-bar-success {
+	background-color:#009FE6;
+	border-color:#0082be;
+}
+.btn-success:hover {
+	background-color:#0078b0;
+	border-color:#0082be;
+}
+
+.input-group {
+	margin-bottom: 10px;
+}
+
+input.question-did {
+	display: none;
+}
+
+.fileinput-button {
+	height: 32px;
+}
+
+.progress {
+	margin-top: 10px;
+}
+
+.upload-group {
+	margin-top: 30px;
+}
+
+.image-url, .thumbnail-url {
+	display: none;
+}
+
+#map-canvas {
+	height: 65%;
+	width: 100%;
+	margin-bottom: 10px;
+}
+
+.response-full-image {
+	max-height: 70%;
+	max-width: 80%;
+	display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
