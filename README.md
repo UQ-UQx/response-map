@@ -18,3 +18,9 @@ Next, create the LTI component within a course unit (under Add New Component > A
 
 ## Workflow
 <img src="https://github.com/UQ-UQx/response-map/blob/master/README_WORKFLOW_IMAGE.png?raw=true">
+
+##License
+This project is licensed under the terms of the MIT license.
+
+##Contact
+The best contact point apart from opening github issues or comments is to email technical@uqx.uq.edu.au
