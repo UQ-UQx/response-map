@@ -226,12 +226,6 @@
 
 					$select_response_query = mysqli_query($conn, 'SELECT response_id, response_body, fullname, location, lat, lng, image_url, thumbnail_url, vote_count FROM response, user WHERE resource_id = "' . $question_id . '" AND response.user_id = user.user_id AND user.user_id != "' . $_SESSION[$_POST['lis_result_sourcedid']]['user_id'] . '"');
 
-					$vote_query = 'SELECT response_id FROM feedback WHERE user_id = "'.$_SESSION[$_POST['lis_result_sourcedid']]['user_id'].'" AND vote = 1';
-					$select_vote_query = mysqli_query($conn, $vote_query);
-					while ($vote_row = mysqli_fetch_row($select_vote_query)) {
-						$votes[] = $vote_row[0];
-					}
-
 					// Loop through all other student responses obtained from database and push it into array
 					while ($others_row = mysqli_fetch_row($select_response_query)) {
 						$student_response = new stdClass();
@@ -244,14 +238,8 @@
 						$student_response->lng = $others_row[5];
 						$student_response->image_url = $others_row[6];
 						$student_response->thumbnail_url = $others_row[7];
-						if (in_array($student_response->id, $votes)) {
-							$student_response->thumbs_up = true;
-						}
-						else {
-							$student_response->thumbs_up = false;
-						}
-
 						$student_response->vote_count = $others_row[8];
+						$student_response->thumbs_up = false; // Should be false since student has just responded so cannot have voted on other responses
 
 						$all_text .= ' ' . $student_response->response;
 
