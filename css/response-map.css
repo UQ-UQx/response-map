@@ -61,3 +61,13 @@ input.question-did {
     margin-left: auto;
     margin-right: auto;
 }
+
+.vote-group .vote-btn {
+	outline: none !important;
+}
+
+.vote-group .vote-count {
+	margin-left: 5px;
+	display: inline-block;
+	vertical-align: middle;
+}

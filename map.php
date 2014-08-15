@@ -1,4 +1,5 @@
 <?php
+	// Only return mark is scoring is enabled
 	if (!empty($_SESSION[$_POST['lis_result_sourcedid']]['lis_outcome_service_url'])) {
 		// Give participation mark
 		$student_grade = 1;
@@ -69,20 +70,62 @@
 
 		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 		<script src="https://maps.googleapis.com/maps/api/js?v=3.exp"></script>
-		<script src="https://google-maps-utility-library-v3.googlecode.com/svn/trunk/markerclusterer/src/markerclusterer.js"></script>
+		<script src="js/markerclusterer.js"></script>
 		<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
 		<script src="//cdnjs.cloudflare.com/ajax/libs/d3/3.4.11/d3.min.js"></script>
 		<script src="js/d3.layout.cloud.js"></script>
+		<link href="//maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
 
 		<script type="text/javascript">
 			var allStudentResponses = '<?php echo $all_student_responses ?>';
 			var mapResponses = JSON.parse(allStudentResponses);
 			var startLocation = new google.maps.LatLng(mapResponses[0].lat, mapResponses[0].lng);
+			var sourcedid = '<?php echo $_POST["lis_result_sourcedid"] ?>';
+			var sessid = '<?php echo $session_id ?>';
 
 			var markerBounds = new google.maps.LatLngBounds();
 			var iterator = 0;
 			var map, markers = [];
-			var openedInfoWindow = null;
+			var openedMarker = null;
+
+			function toggleThumbsUp(respid, element) {
+				$.ajax({
+					type: 'POST',
+					url: 'vote.php',
+					data: JSON.stringify({
+						sourcedid: sourcedid,
+						sessid: sessid,
+						respid: respid,
+					}),
+					dataType: 'json',
+					success: function(data) {
+						console.log(data);
+						console.log(element);
+						var voteCountElem = $($(element).parent().find('.vote-count')[0]);
+
+						if (data.vote) {
+							if (!$(element).hasClass('btn-primary')) {
+								openedMarker.voteCount = openedMarker.voteCount + 1;
+							}
+
+							$(element).removeClass('btn-default');
+							$(element).addClass('btn-primary');
+							openedMarker.thumbsUp = true;
+						}
+						else {
+							if (!$(element).hasClass('btn-default')) {
+								openedMarker.voteCount = openedMarker.voteCount - 1;
+							}
+
+							$(element).removeClass('btn-primary');
+							$(element).addClass('btn-default');
+							openedMarker.thumbsUp = false;
+						}
+
+						voteCountElem.text(openedMarker.voteCount);
+					},
+				});
+			}
 
 			function mapInitialise() {
 				var mapOptions = {
@@ -132,40 +175,71 @@
 					});
 
 					marker.distanceToCentre = mapResponses[key].distanceToCentre;
+					marker.fullname = mapResponses[key].fullname;
+					marker.responseBody = mapResponses[key].response;
 					marker.myMarker = mapResponses[key].myMarker;
 					marker.fullImageUrl = mapResponses[key].image_url;
+					marker.thumbnailImageUrl = mapResponses[key].thumbnail_url;
 					marker.fullname = mapResponses[key].fullname;
+					marker.responseId = mapResponses[key].id;
+					marker.thumbsUp = mapResponses[key].thumbs_up;
+					marker.voteCount = mapResponses[key].vote_count;
 
 					var contentString = '<div id="content">' +
-											'<h3 id="firstHeading" class="firstHeading">' + mapResponses[key].fullname + '</h3>' +
+											'<h3 id="firstHeading" class="firstHeading">' + marker.fullname + '</h3>' +
 											'<div id="bodyContent">' +
-												'<p>' + mapResponses[key].response + '</p>';
+												'<p>' + marker.responseBody + '</p>';
 
-					if ((mapResponses[key].thumbnail_url !== null) && (mapResponses[key].image_url !== null)) {
-						contentString += 		'<a href="#myModal" data-toggle="modal"><img src="' + mapResponses[key].thumbnail_url + '" alt=""/></a>';
+					if ((marker.thumbnailImageUrl !== null) && (marker.fullImageUrl !== null)) {
+						contentString += 		'<a href="#myModal" data-toggle="modal"><img src="' + marker.thumbnailImageUrl + '" alt=""/></a>';
 					}
 
-					contentString +=		'</div>' +
+					contentString +=			'<button type="button" class="vote-btn btn btn-default btn-xs" onclick="toggleThumbsUp(' + marker.responseId + ', this)"><i class="fa fa-thumbs-o-up"></i></button>' +
+											'</div>' +
 										'</div>';
 
-					marker.infoWindow = new google.maps.InfoWindow({
-						content: contentString
-					});
+					marker.infoWindow = new google.maps.InfoWindow();
+
+					marker.infoWindow.setContent(contentString);
 
 					markers.push(marker);
 
 					google.maps.event.addListener(marker, 'click', function() {
-						if (openedInfoWindow !== null) {
-							openedInfoWindow.close();
-							openedInfoWindow = null;
+						if (openedMarker !== null) {
+							openedMarker.infoWindow.close();
+							openedMarker = null;
 						}
 
 						$('.response-full-image').attr('src', this.fullImageUrl);
 						$('.response-fullname').text(this.fullname + '\'s Image Response');
 
-						openedInfoWindow = this.infoWindow.open(map,this);
-						openedInfoWindow = this.infoWindow;
+						var buttonClass = 'btn-default';
 
+						if (this.thumbsUp) {
+							buttonClass = 'btn-primary';
+						}
+						else {
+							buttonClass = 'btn-default';
+						}
+
+						var contentString = '<div id="content">' +
+											'<h3 id="firstHeading" class="firstHeading">' + this.fullname + '</h3>' +
+											'<div id="bodyContent">' +
+												'<p>' + this.responseBody + '</p>';
+
+						if ((this.thumbnailImageUrl !== null) && (this.fullImageUrl !== null)) {
+							contentString += 		'<a href="#myModal" data-toggle="modal"><img src="' + this.thumbnailImageUrl + '" alt=""/></a>';
+						}
+
+						contentString +=			'<div class="vote-group"><button type="button" class="vote-btn btn ' + buttonClass + ' btn-xs" onclick="toggleThumbsUp(' + this.responseId + ', this)"><i class="fa fa-thumbs-o-up"></i></button>' +
+													'<span class="vote-count">' + this.voteCount + '</span></div>' +
+												'</div>' +
+											'</div>';
+
+						this.infoWindow.setContent(contentString);
+
+						this.infoWindow.open(map,this);
+						openedMarker = this;
 					});
 				}
 
@@ -198,7 +272,7 @@
 				var frequencyList = <?php echo $word_frequency ?>;
 
 				var color = d3.scale.linear()
-					.domain([0,1,2,3,4,5,6,10,15,20,100])
+					.domain([0, 1, 2, 3, 4, 5, 6, 10, 15, 20, 70])
 					.range(['#ddd', '#ccc', '#bbb', '#aaa', '#999', '#888', '#777', '#666', '#555', '#444', '#333', '#222']);
 
 				d3.layout.cloud().size([750, 240])
@@ -244,7 +318,7 @@
 					<h4 class="modal-title response-fullname"></h4>
 				</div>
 				<div class="modal-body">
-					<img class="response-full-image" src=""></img>
+					<img class="response-full-image" src="">
 				</div>
 			</div>
 		</div>
