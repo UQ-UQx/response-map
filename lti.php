@@ -38,6 +38,8 @@ class Lti {
 					if(isset($_SESSION[$this->ltivars['lis_result_sourcedid']])) {
 						$this->ltivars = $_SESSION[$this->ltivars['lis_result_sourcedid']];
 						$this->valid = true;
+					}  else if(isset($this->ltivars['lis_result_sourcedid'])) {
+						$this->errors = 'Cannot update location, please try from a different browser';
 					} else {
 						$this->errors = 'Bad LTi Validation - '.$e->getMessage();
 					}
@@ -45,6 +47,15 @@ class Lti {
 			} else {
 				if(isset($_SESSION[$this->ltivars['lis_result_sourcedid']])) {
 					$this->ltivars = $_SESSION[$this->ltivars['lis_result_sourcedid']];
+					$this->valid = true;
+				} else if(isset($this->ltivars['lis_result_sourcedid'])) {
+					$this->ltivars['user_id'] = $_POST['ltifix_user_id'];
+					session_start();
+					$_SESSION[$this->ltivars['lis_result_sourcedid']] = $this->ltivars;
+/* 					echo $this->ltivars['user_id']; */
+/* 					print_r($this->ltivars); */
+/* 					$this->errors = 'Bad LTi Validation - Invalid consumer key'; */
+/* 					die(); */
 					$this->valid = true;
 				} else {
 					$this->errors = 'Bad LTi Validation - Invalid consumer key';

@@ -152,9 +152,9 @@
 			while ($others_row = mysqli_fetch_row($select_response_query)) {
 				$student_response = new stdClass();
 				$student_response->id = $others_row[0];
-				$student_response->response = $others_row[1];
+				$student_response->response = str_replace("\t","",$others_row[1]);
 				$student_response->fullname = $others_row[2];
-				$student_response->location = $others_row[3];
+				$student_response->location = preg_replace("/[^A-Za-z0-9_ ]/", "",$others_row[3]);
 				$student_response->lat = $others_row[4];
 				$student_response->lng = $others_row[5];
 				$student_response->image_url = $others_row[6];
@@ -175,8 +175,10 @@
 
 			$all_student_responses = json_encode($student_responses);
 			$word_frequency = json_encode(wordCount($all_text));
-
+			$postvars = $_POST;
 			// Show map
+			$map_user_id = $_SESSION[$_POST['lis_result_sourcedid']]['user_id'];
+			$map_location = $user_row[1];
 			require('map.php');
 		}
 		else {
@@ -233,7 +235,7 @@
 						$student_response->id = $others_row[0];
 						$student_response->response = $others_row[1];
 						$student_response->fullname = $others_row[2];
-						$student_response->location = $others_row[3];
+						$student_response->location = preg_replace("/[^A-Za-z0-9_ ]/", "",$others_row[3]);
 						$student_response->lat = $others_row[4];
 						$student_response->lng = $others_row[5];
 						$student_response->image_url = $others_row[6];
@@ -245,8 +247,11 @@
 
 						array_push($student_responses, $student_response);
 					}
-
+					$map_location = $others_row[3];
+					// Show map
+					$map_user_id = $_SESSION[$_POST['lis_result_sourcedid']]['user_id'];
 					$all_student_responses = json_encode($student_responses);
+					$postvars = $_POST;
 					$word_frequency = json_encode(wordCount($all_text));
 
 					require('map.php');

@@ -183,7 +183,7 @@
 					marker.fullname = mapResponses[key].fullname;
 					marker.responseId = mapResponses[key].id;
 					marker.thumbsUp = mapResponses[key].thumbs_up;
-					marker.voteCount = mapResponses[key].vote_count;
+					marker.voteCount = parseInt(mapResponses[key].vote_count);
 
 					var contentString = '<div id="content">' +
 											'<h3 id="firstHeading" class="firstHeading">' + marker.fullname + '</h3>' +
@@ -270,10 +270,22 @@
 			// Plotting word cloud
 			$(function() {
 				var frequencyList = <?php echo $word_frequency ?>;
+				console.log("AAA");
+				console.log(frequencyList);
+				console.log("BBB");
+				
+				var color_range = ['#ddd', '#ccc', '#bbb', '#aaa', '#999', '#888', '#777', '#666', '#555', '#444', '#333', '#222'];
+				var use_color = false;
+				<?php if(isset($_POST['custom_usecolor']) && $_POST['custom_usecolor'] == 'true') { ?>
+				use_color = true;
+				<?php } ?>
+				if(use_color) {
+					color_range = d3.scale.category20().range();
+				}
 
 				var color = d3.scale.linear()
 					.domain([0, 1, 2, 3, 4, 5, 6, 10, 15, 20, 70])
-					.range(['#ddd', '#ccc', '#bbb', '#aaa', '#999', '#888', '#777', '#666', '#555', '#444', '#333', '#222']);
+					.range(color_range);
 
 				d3.layout.cloud().size([750, 240])
 					.words(frequencyList)
@@ -294,19 +306,20 @@
 						.selectAll('text')
 						.data(words)
 						.enter().append('text')
-						.style('font-size', function(d) { return d.size + 'px'; })
-						.style('fill', function(d, i) { return color(i); })
-						.attr('transform', function(d) {
-							return 'translate(' + [d.x, d.y] + ')rotate(' + d.rotate + ')';
-						})
-						.text(function(d) { return d.text; });
+							.style('font-size', function(d) { return d.size + 'px'; })
+							.style('fill', function(d, i) { return color(i); })
+
+							.attr("text-anchor", "middle")
+							.attr('transform', function(d) {
+								return 'translate(' + [d.x, d.y] + ')rotate(' + d.rotate + ')';
+							})
+							.text(function(d) { return d.text; });
 				}
 			});
 		</script>
 	</head>
 
 	<div id="map-canvas"></div>
-
 	<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
 		<div class="modal-dialog">
 			<div class="modal-content">
@@ -323,5 +336,22 @@
 			</div>
 		</div>
 	</div>
-	<div class="response-word-cloud"></div>
+	<form method="post" action="update_location.php">
+		<input type='hidden' name='postvars' value='<?php echo json_encode($_POST); ?>' />
+		<input type="hidden" name="user_id" value="<?php echo $map_user_id; ?>" />
+		<div class="input-group" style="margin-top:20px;">
+			<input type="text" class="form-control user-location" name="user_location" value="<?php echo str_replace('"',"'",$map_location); ?>">
+			<span class="input-group-btn">
+				<input type="submit" class="btn btn-primary" value="Update Your Location" />
+			</span>
+		</div>
+	</form>
+
+	<?php if(isset($_POST['custom_showcloud']) && $_POST['custom_showcloud'] == 'true') { ?>
+		<div class="response-word-cloud"></div>
+	<?php } else {
+	?>
+		<div class="alert alert-success" role="alert">Thank you for posting, please refresh to see the cloud tag.</div>
+	<?php
+	} ?>
 </html>

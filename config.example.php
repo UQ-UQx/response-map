@@ -6,6 +6,7 @@
 	$database_name = 'response_map';
 	$database_user = 'rmap_user';
 	$database_pass = '';
+	$adminpassword = '';
 
 	// Establish a connection to the database
 	$conn = mysqli_connect($host, $database_user, $database_pass, $database_name);
