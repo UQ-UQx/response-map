@@ -10,6 +10,12 @@ First, you must edit config.example.php to contain the appropriate MySQL credent
 
 Then, you must specify and LTI key and secret in lti.php.
 
+Images are uploaded to the files folder which needs the following upload permissions:
+```
+chown apache:apache -R files/
+chmod 755 -R files/
+```
+
 Within your course in edX Studio, the LTI module must be enabled in order to create LTI components. This can be done by going to Settings > Advanced Settings and adding ```"lti"``` to the array.
 
 Also under Advanced Settings, the LTI Passports array must contain the LTI key and secret pair that is used by the tool. You must add it to the array in the following format: ```"passport_id:key:secret"```. The id is later used when configuring the LTI component to obtain the key and secret.
