@@ -1,11 +1,12 @@
 <?php
-	if ($_POST['session_id']) {
+session_start();
+if (isset($_POST['session_id'])) {
 		$session_id = $_POST['session_id'];
 		session_id($_POST['session_id']);
-		session_start();
+		//session_start();
 	}
 	else {
-		session_start();
+		//session_start();
 		$session_id = session_id();
 	}
 
@@ -39,7 +40,7 @@
 			create_time timestamp,
 			PRIMARY KEY (response_id)
 		)";
-			
+
 		if (!mysqli_query($conn, $sql)) {
 			echo 'Cannot create config table! Please contact UQx staff.';
 			die();
@@ -57,7 +58,7 @@
 			create_time timestamp,
 			PRIMARY KEY (user_id)
 		)";
-			
+
 		if (!mysqli_query($conn, $sql)) {
 			echo 'Cannot create user table! Please contact UQx staff.';
 			die();
@@ -73,7 +74,7 @@
 			create_time timestamp,
 			PRIMARY KEY (response_id, user_id)
 		)";
-			
+
 		if (!mysqli_query($conn, $sql)) {
 			echo 'Cannot create user table! Please contact UQx staff.';
 			die();

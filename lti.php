@@ -9,14 +9,14 @@ class Lti {
 	protected $key = 'rmap';
 	protected $valid = false;
 	protected $errors = '';
-	
+
 	function __construct($options = null, $initialize = true, $error_messages = null) {
 		if(!empty($_POST)) {
 			$this->ltivars = $_POST;
 		}
         if($this->testing) {
 	        $this->valid = true;
-	        $this->usedummydata();
+	        $this->use_dummy_data();
         } else {
         	$store = new TrivialOAuthDataStore();
         	if(!isset($this->ltivars["oauth_consumer_key"])) {
@@ -63,7 +63,7 @@ class Lti {
 			}
 		}
 	}
-	
+
 	function get_user_id() {
 		return $this->ltivars['user_id'];
 	}
@@ -71,7 +71,7 @@ class Lti {
 	function get_user_role() {
 		return $this->ltivars['roles'];
 	}
-	
+
 	function require_valid() {
 		if($this->valid) {
 			return;
@@ -88,11 +88,11 @@ class Lti {
 	function get_lis_result_sourcedid() {
 		return $this->ltivars['lis_result_sourcedid'];
 	}
-	
+
 	function get_vars() {
 		return $this->ltivars;
 	}
-	
+
 	function use_dummy_data() {
 		$this->ltivars = array(
 		    'launch_presentation_return_url'=>'',
@@ -112,7 +112,7 @@ class Lti {
 		    'oauth_callback'=>'about:blank',
 		);
 	}
-	
+
 }
 
 /**
